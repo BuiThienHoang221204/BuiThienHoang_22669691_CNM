@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+  
+  <div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2><i class="fas fa-users me-2"></i><%= title %></h2>
+      <a href="/admin/register" class="btn btn-primary">
+        <i class="fas fa-user-plus me-1"></i>Thêm người dùng
+      </a>
+    </div>
+    
+    <% if (success) { %>
+      <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>Tạo người dùng thành công!
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    <% } %>
+    
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th>Username</th>
+            <th>Vai trò</th>
+            <th>Ngày tạo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(u => { %>
+            <tr>
+              <td>
+                <i class="fas fa-user-circle me-2"></i>
+                <strong><%= u.username %></strong>
+              </td>
+              <td>
+                <% if (u.role === 'admin') { %>
+                  <span class="badge bg-danger">
+                    <i class="fas fa-crown me-1"></i>Admin
+                  </span>
+                <% } else { %>
+                  <span class="badge bg-info">
+                    <i class="fas fa-user me-1"></i>Staff
+                  </span>
+                <% } %>
+              </td>
+              <td>
+                <small class="text-muted">
+                  <%= new Date(u.createdAt).toLocaleDateString('vi-VN') %>
+                </small>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="alert alert-info mt-4">
+      <i class="fas fa-info-circle me-2"></i>
+      <strong>Lưu ý:</strong> Hiện tại hệ thống chưa hỗ trợ xóa hoặc cập nhật người dùng.
+      Đây là tính năng bảo mật để tránh xóa nhầm tài khoản admin.
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

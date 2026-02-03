@@ -1,0 +1,519 @@
+<%- include('../layout', {title: typeof title !== 'undefined' ? title : 'Chỉnh sửa sản phẩm'}) %>
+<style>
+  /* Form Container */
+  .form-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .form-header {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 40px 30px;
+    text-align: center;
+  }
+
+  .form-header h2 {
+    font-size: 2em;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .form-header p {
+    opacity: 0.9;
+    font-size: 1.1em;
+  }
+
+  .form-body {
+    padding: 40px;
+  }
+
+  /* Form Groups */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 25px;
+  }
+
+  .form-group {
+    margin-bottom: 25px;
+  }
+
+  .form-group.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .form-label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .form-label i {
+    color: #f5576c;
+    font-size: 0.9em;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid #e1e5e9;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: #fafbfc;
+    font-family: inherit;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #f5576c;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .form-input:hover {
+    border-color: #b8c5d1;
+  }
+
+  /* Current Image Display */
+  .current-image-section {
+    background: linear-gradient(135deg, #f8f9ff 0%, #fff5f5 100%);
+    border: 2px solid #fed7d7;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+  }
+
+  .current-image-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .current-image-title i {
+    color: #f5576c;
+  }
+
+  .current-image-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .current-image {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .image-info {
+    flex: 1;
+  }
+
+  .image-info p {
+    margin: 5px 0;
+    color: #666;
+  }
+
+  /* File Input Styling */
+  .file-input-container {
+    position: relative;
+    overflow: hidden;
+    border: 2px dashed #f5576c;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .file-input-container:hover {
+    border-color: #e53e3e;
+    background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(245, 87, 108, 0.15);
+  }
+
+  .file-input-container.dragover {
+    border-color: #48bb78;
+    background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+  }
+
+  .file-input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .file-input-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    text-align: center;
+    color: #4a5568;
+    font-weight: 500;
+  }
+
+  .file-input-label i {
+    font-size: 2.5em;
+    color: #f5576c;
+    margin-bottom: 10px;
+  }
+
+  .file-input-label span {
+    font-size: 1em;
+    margin-bottom: 5px;
+  }
+
+  .file-input-label small {
+    color: #718096;
+    font-size: 0.9em;
+  }
+
+  /* Form Actions */
+  .form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid #e1e5e9;
+  }
+
+  /* Progress Indicator */
+  .form-progress {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+
+  .progress-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: #f7fafc;
+    border-radius: 25px;
+    font-weight: 500;
+    color: #4a5568;
+  }
+
+  .progress-step.active {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+  }
+
+  .progress-step i {
+    font-size: 1.2em;
+  }
+
+  /* Validation Messages */
+  .form-error {
+    color: #e53e3e;
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .form-error i {
+    font-size: 0.8em;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .form-body {
+      padding: 25px;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .form-header h2 {
+      font-size: 1.6em;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+
+    .current-image-container {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .current-image {
+      width: 100px;
+      height: 100px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .form-header {
+      padding: 30px 20px;
+    }
+
+    .form-header h2 {
+      font-size: 1.4em;
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+</style>
+
+<div class="page-header">
+  <h2><i class="fas fa-edit"></i> Chỉnh sửa sản phẩm</h2>
+</div>
+
+<div class="form-card">
+  <div class="form-header">
+    <h2><i class="fas fa-pencil-alt"></i> Cập nhật thông tin</h2>
+    <p>Thay đổi thông tin sản phẩm theo ý muốn</p>
+  </div>
+
+  <div class="form-progress">
+    <div class="progress-step active">
+      <i class="fas fa-edit"></i>
+      <span>Chỉnh sửa sản phẩm</span>
+    </div>
+  </div>
+
+  <form class="form-body" action="/edit/<%= product.id %>" method="POST" enctype="multipart/form-data" id="productForm">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="name">
+          <i class="fas fa-tag"></i>
+          Tên sản phẩm *
+        </label>
+        <input type="text" id="name" name="name" class="form-input"
+               value="<%= product.name %>" placeholder="Nhập tên sản phẩm" required>
+        <div class="form-error" id="nameError" style="display: none;">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>Vui lòng nhập tên sản phẩm</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="price">
+          <i class="fas fa-dollar-sign"></i>
+          Giá (VNĐ) *
+        </label>
+        <input type="number" id="price" name="price" class="form-input"
+               value="<%= product.price %>" placeholder="Nhập giá sản phẩm" min="0" step="1000" required>
+        <div class="form-error" id="priceError" style="display: none;">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>Vui lòng nhập giá hợp lệ</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="quantity">
+          <i class="fas fa-cubes"></i>
+          Số lượng tồn kho *
+        </label>
+        <input type="number" id="quantity" name="quantity" class="form-input"
+               value="<%= product.quantity %>" placeholder="Nhập số lượng" min="0" required>
+        <div class="form-error" id="quantityError" style="display: none;">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>Vui lòng nhập số lượng hợp lệ</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="category">
+          <i class="fas fa-folder"></i>
+          Danh mục
+        </label>
+        <select id="category" name="category" class="form-input">
+          <option value="">Chọn danh mục (tùy chọn)</option>
+          <option value="electronics" <%= (typeof product.category !== 'undefined' && product.category === 'electronics') ? 'selected' : '' %>>Điện tử</option>
+          <option value="clothing" <%= (typeof product.category !== 'undefined' && product.category === 'clothing') ? 'selected' : '' %>>Quần áo</option>
+          <option value="books" <%= (typeof product.category !== 'undefined' && product.category === 'books') ? 'selected' : '' %>>Sách</option>
+          <option value="home" <%= (typeof product.category !== 'undefined' && product.category === 'home') ? 'selected' : '' %>>Gia dụng</option>
+          <option value="sports" <%= (typeof product.category !== 'undefined' && product.category === 'sports') ? 'selected' : '' %>>Thể thao</option>
+          <option value="other" <%= (typeof product.category !== 'undefined' && product.category === 'other') ? 'selected' : '' %>>Khác</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group full-width">
+      <label class="form-label" for="description">
+        <i class="fas fa-align-left"></i>
+        Mô tả sản phẩm
+      </label>
+      <textarea id="description" name="description" class="form-input"
+                placeholder="Nhập mô tả chi tiết về sản phẩm (tùy chọn)" rows="4"><%= typeof product.description !== 'undefined' ? product.description : '' %></textarea>
+    </div>
+
+    <!-- Current Image Display -->
+    <div class="current-image-section">
+      <div class="current-image-title">
+        <i class="fas fa-image"></i>
+        Hình ảnh hiện tại
+      </div>
+      <div class="current-image-container">
+        <img src="<%= product.url_image %>" alt="<%= product.name %>" class="current-image" />
+        <div class="image-info">
+          <p><strong><%= product.name %></strong></p>
+          <p style="color: #f5576c; font-size: 0.9em;">Hình ảnh này sẽ được giữ lại nếu bạn không chọn hình mới</p>
+          <p style="font-size: 0.9em; color: #666;">URL: <code style="background: #f7fafc; padding: 2px 6px; border-radius: 4px; font-size: 0.8em;"><%= product.url_image %></code></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group full-width">
+      <label class="form-label" for="image">
+        <i class="fas fa-camera"></i>
+        Thay đổi hình ảnh (tùy chọn)
+      </label>
+      <div class="file-input-container" id="fileInputContainer">
+        <input type="file" id="image" name="image" class="file-input" accept="image/*">
+        <label for="image" class="file-input-label">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span>Kéo thả hình ảnh mới vào đây hoặc click để chọn</span>
+          <small>JPG, PNG, GIF - Tối đa 5MB - Để trống nếu không muốn thay đổi</small>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn">
+        <i class="fas fa-save"></i>
+        Cập nhật sản phẩm
+      </button>
+      <a href="/" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i>
+        Hủy bỏ
+      </a>
+    </div>
+  </form>
+</div>
+
+<script>
+  // File drag and drop functionality
+  const fileInputContainer = document.getElementById('fileInputContainer');
+  const fileInput = document.getElementById('image');
+
+  if (fileInputContainer && fileInput) {
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      fileInputContainer.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      fileInputContainer.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      fileInputContainer.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight(e) {
+      fileInputContainer.classList.add('dragover');
+    }
+
+    function unhighlight(e) {
+      fileInputContainer.classList.remove('dragover');
+    }
+
+    fileInputContainer.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+
+      if (files.length > 0) {
+        fileInput.files = files;
+        updateFileLabel(files[0]);
+      }
+    }
+
+    fileInput.addEventListener('change', function(e) {
+      if (this.files.length > 0) {
+        updateFileLabel(this.files[0]);
+      }
+    });
+
+    function updateFileLabel(file) {
+      const label = fileInputContainer.querySelector('.file-input-label');
+      label.innerHTML = `
+        <i class="fas fa-check-circle" style="color: #48bb78;"></i>
+        <span>${file.name}</span>
+        <small>${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+      `;
+    }
+  }
+
+  // Form validation
+  document.getElementById('productForm').addEventListener('submit', function(e) {
+    let isValid = true;
+
+    // Reset errors
+    document.querySelectorAll('.form-error').forEach(error => {
+      error.style.display = 'none';
+    });
+
+    // Validate name
+    const name = document.getElementById('name').value.trim();
+    if (!name) {
+      document.getElementById('nameError').style.display = 'flex';
+      isValid = false;
+    }
+
+    // Validate price
+    const price = document.getElementById('price').value;
+    if (!price || price < 0) {
+      document.getElementById('priceError').style.display = 'flex';
+      isValid = false;
+    }
+
+    // Validate quantity
+    const quantity = document.getElementById('quantity').value;
+    if (!quantity || quantity < 0) {
+      document.getElementById('quantityError').style.display = 'flex';
+      isValid = false;
+    }
+
+    if (!isValid) {
+      e.preventDefault();
+    }
+  });
+</script>
+<%- include('../footer') %>
