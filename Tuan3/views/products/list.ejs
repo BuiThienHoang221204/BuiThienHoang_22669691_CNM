@@ -153,24 +153,17 @@
               let stockStatus = 'in_stock';
               let stockText = 'Còn hàng';
               let stockIcon = 'fas fa-check-circle';
+              let stockClass = 'stock-success';
               
               if (quantity === 0) {
                 stockStatus = 'out_of_stock';
                 stockText = 'Hết hàng';
                 stockIcon = 'fas fa-times-circle';
+                stockClass = 'stock-danger';
               } else if (quantity <= 10) {
                 stockStatus = 'low_stock';
                 stockText = 'Sắp hết';
                 stockIcon = 'fas fa-exclamation-triangle';
-              }
-            %>
-            <%
-              const quantity = Number(product.quantity) || 0;
-              let stockClass = 'stock-success';
-              
-              if (quantity === 0) {
-                stockClass = 'stock-danger';
-              } else if (quantity <= 10) {
                 stockClass = 'stock-warning';
               }
             %>
