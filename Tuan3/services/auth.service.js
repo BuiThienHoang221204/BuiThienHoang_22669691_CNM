@@ -1,16 +1,14 @@
-const bcrypt = require("bcrypt");
 const userRepository = require("../repositories/user.repository");
 const { v4: uuidv4 } = require("uuid");
 
-// Hash password
+// Không mã hóa password - lưu trực tiếp
 const hashPassword = async (password) => {
-  const saltRounds = 10;
-  return await bcrypt.hash(password, saltRounds);
+  return password; // Trả về password gốc
 };
 
-// Verify password
-const verifyPassword = async (password, hashedPassword) => {
-  return await bcrypt.compare(password, hashedPassword);
+// So sánh password trực tiếp
+const verifyPassword = async (password, storedPassword) => {
+  return password === storedPassword; // So sánh trực tiếp
 };
 
 // Đăng ký user mới
@@ -21,14 +19,14 @@ exports.register = async (username, password, role = "staff") => {
     throw new Error("Username đã tồn tại");
   }
 
-  // Hash password
-  const hashedPassword = await hashPassword(password);
+  // Lưu password trực tiếp (không hash)
+  const plainPassword = await hashPassword(password);
 
   // Tạo user mới
   const user = {
     userId: uuidv4(),
     username,
-    password: hashedPassword,
+    password: plainPassword,
     role,
     createdAt: new Date().toISOString()
   };

@@ -1,362 +1,271 @@
 <%- include('../layout', {title: typeof title !== 'undefined' ? title : 'Danh sách sản phẩm'}) %>
-<style>
-  /* Header với user info */
-  .user-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 15px;
-    background: #f5f5f5;
-    border-radius: 5px;
-  }
 
-  .user-info span {
-    color: #666;
-  }
-
-  .user-info a {
-    color: #1976d2;
-    text-decoration: none;
-    margin-left: 10px;
-  }
-
-  /* Filter section */
-  .filter-section {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-  }
-
-  .filter-section h3 {
-    margin-bottom: 15px;
-    color: #333;
-  }
-
-  .filter-form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 15px;
-  }
-
-  .filter-group {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .filter-group label {
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: #666;
-    font-size: 0.9em;
-  }
-
-  .filter-group input,
-  .filter-group select {
-    padding: 8px;
-    border: 2px solid #e0e0e0;
-    border-radius: 5px;
-    font-size: 14px;
-  }
-
-  .filter-actions {
-    display: flex;
-    gap: 10px;
-  }
-
-  /* Table */
-  .table-container {
-    overflow-x: auto;
-    margin-top: 20px;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-
-  thead {
-    background: #1976d2;
-    color: white;
-  }
-
-  th {
-    padding: 15px;
-    text-align: left;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.9em;
-    letter-spacing: 0.5px;
-  }
-
-  td {
-    padding: 15px;
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  tbody tr:hover {
-    background: #f8f9fa;
-  }
-
-  tbody tr:last-child td {
-    border-bottom: none;
-  }
-
-  .product-image {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-
-  .product-name {
-    font-weight: 600;
-    color: #333;
-  }
-
-  .product-price {
-    color: #1976d2;
-    font-weight: 600;
-    font-size: 1.1em;
-  }
-
-  .product-quantity {
-    color: #666;
-  }
-
-  /* Inventory status badge */
-  .inventory-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.85em;
-    font-weight: 600;
-  }
-
-  .inventory-badge.in_stock {
-    background: #c8e6c9;
-    color: #2e7d32;
-  }
-
-  .inventory-badge.low_stock {
-    background: #ffe0b2;
-    color: #e65100;
-  }
-
-  .inventory-badge.out_of_stock {
-    background: #ffcdd2;
-    color: #c62828;
-  }
-
-  .actions {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #666;
-  }
-
-  .empty-state h2 {
-    margin-bottom: 20px;
-    color: #333;
-  }
-
-  /* Pagination */
-  .pagination {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
-    padding: 20px;
-  }
-
-  .pagination a,
-  .pagination span {
-    padding: 8px 16px;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    text-decoration: none;
-    color: #1976d2;
-  }
-
-  .pagination span {
-    color: #666;
-    background: #f5f5f5;
-  }
-
-  .pagination a:hover {
-    background: #e3f2fd;
-  }
-
-  @media (max-width: 768px) {
-    table {
-      font-size: 0.9em;
-    }
-
-    th, td {
-      padding: 10px 8px;
-    }
-
-    .product-image {
-      width: 60px;
-      height: 60px;
-    }
-
-    .filter-form {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>
-
-<div class="user-info">
-  <div>
-    <% if (typeof user !== 'undefined' && user) { %>
-      <span>👤 <strong><%= user.username %></strong> (<%= user.role === 'admin' ? 'Quản trị viên' : 'Nhân viên' %>)</span>
-      <a href="/logout">Đăng xuất</a>
-    <% } else { %>
-      <a href="/login">Đăng nhập</a>
-    <% } %>
-  </div>
-  <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
-    <div>
-      <a href="/categories" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;">📁 Quản lý danh mục</a>
-      <a href="/users" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;">👥 Quản lý user</a>
+<!-- Stats Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+  <div class="card">
+    <div class="card-body" style="text-align: center;">
+      <div style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 0.5rem;">
+        <i class="fas fa-shopping-bag"></i>
+      </div>
+      <h3 style="color: var(--text-dark); margin-bottom: 0.25rem;"><%= products.length %></h3>
+      <p style="color: var(--text-light); margin: 0;">Tổng sản phẩm</p>
     </div>
-  <% } %>
+  </div>
+  
+  <div class="card">
+    <div class="card-body" style="text-align: center;">
+      <div style="font-size: 2.5rem; color: var(--success-color); margin-bottom: 0.5rem;">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h3 style="color: var(--text-dark); margin-bottom: 0.25rem;">
+        <%= products.filter(p => p.quantity > 10).length %>
+      </h3>
+      <p style="color: var(--text-light); margin: 0;">Còn hàng</p>
+    </div>
+  </div>
+  
+  <div class="card">
+    <div class="card-body" style="text-align: center;">
+      <div style="font-size: 2.5rem; color: var(--warning-color); margin-bottom: 0.5rem;">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h3 style="color: var(--text-dark); margin-bottom: 0.25rem;">
+        <%= products.filter(p => p.quantity <= 10 && p.quantity > 0).length %>
+      </h3>
+      <p style="color: var(--text-light); margin: 0;">Sắp hết</p>
+    </div>
+  </div>
+  
+  <div class="card">
+    <div class="card-body" style="text-align: center;">
+      <div style="font-size: 2.5rem; color: var(--danger-color); margin-bottom: 0.5rem;">
+        <i class="fas fa-times-circle"></i>
+      </div>
+      <h3 style="color: var(--text-dark); margin-bottom: 0.25rem;">
+        <%= products.filter(p => p.quantity === 0).length %>
+      </h3>
+      <p style="color: var(--text-light); margin: 0;">Hết hàng</p>
+    </div>
+  </div>
 </div>
 
+<!-- Page Header -->
 <div class="page-header">
-  <h2>📋 Danh sách sản phẩm</h2>
+  <h1 class="page-title">
+    <i class="fas fa-shopping-bag"></i>
+    Danh sách sản phẩm
+  </h1>
   <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
-    <a href="/create" class="btn">➕ Thêm sản phẩm mới</a>
+    <a href="/create" class="btn btn-primary">
+      <i class="fas fa-plus"></i>
+      Thêm sản phẩm
+    </a>
   <% } %>
 </div>
 
 <!-- Filter Section -->
-<div class="filter-section">
-  <h3>🔍 Tìm kiếm & Lọc</h3>
-  <form method="GET" action="/" class="filter-form">
-    <div class="filter-group">
-      <label for="name">Tên sản phẩm</label>
-      <input type="text" id="name" name="name" value="<%= typeof filters !== 'undefined' && filters.name ? filters.name : '' %>" placeholder="Nhập tên sản phẩm">
-    </div>
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="card-header">
+    <h3 class="card-title">
+      <i class="fas fa-search"></i>
+      Tìm kiếm & Lọc
+    </h3>
+  </div>
+  <div class="card-body">
+    <form method="GET" action="/" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
+      <div>
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">Tìm kiếm</label>
+        <input type="text" name="search" value="<%= typeof search !== 'undefined' ? search : '' %>" 
+               placeholder="Tên sản phẩm..."
+               style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.875rem;">
+      </div>
 
-    <div class="filter-group">
-      <label for="categoryId">Danh mục</label>
-      <select id="categoryId" name="categoryId">
-        <option value="">-- Tất cả --</option>
-        <% if (typeof categories !== 'undefined' && categories) { %>
-          <% categories.forEach(cat => { %>
-            <option value="<%= cat.categoryId %>" <%= typeof filters !== 'undefined' && filters.categoryId === cat.categoryId ? 'selected' : '' %>><%= cat.name %></option>
-          <% }) %>
-        <% } %>
-      </select>
-    </div>
+      <div>
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">Danh mục</label>
+        <select name="category" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.875rem;">
+          <option value="">Tất cả danh mục</option>
+          <% if (typeof categories !== 'undefined' && categories) { %>
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat.categoryId %>" <%= (typeof category !== 'undefined' && category === cat.categoryId) ? 'selected' : '' %>>
+                <%= cat.name %>
+              </option>
+            <% }) %>
+          <% } %>
+        </select>
+      </div>
 
-    <div class="filter-group">
-      <label for="minPrice">Giá tối thiểu (VNĐ)</label>
-      <input type="number" id="minPrice" name="minPrice" value="<%= typeof filters !== 'undefined' && filters.minPrice ? filters.minPrice : '' %>" placeholder="0" min="0">
-    </div>
+      <div>
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">Tình trạng</label>
+        <select name="stock" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.875rem;">
+          <option value="">Tất cả</option>
+          <option value="in_stock" <%= (typeof stock !== 'undefined' && stock === 'in_stock') ? 'selected' : '' %>>Còn hàng</option>
+          <option value="low_stock" <%= (typeof stock !== 'undefined' && stock === 'low_stock') ? 'selected' : '' %>>Sắp hết</option>
+          <option value="out_of_stock" <%= (typeof stock !== 'undefined' && stock === 'out_of_stock') ? 'selected' : '' %>>Hết hàng</option>
+        </select>
+      </div>
 
-    <div class="filter-group">
-      <label for="maxPrice">Giá tối đa (VNĐ)</label>
-      <input type="number" id="maxPrice" name="maxPrice" value="<%= typeof filters !== 'undefined' && filters.maxPrice ? filters.maxPrice : '' %>" placeholder="999999999" min="0">
-    </div>
-
-    <div class="filter-actions">
-      <button type="submit" class="btn">🔍 Tìm kiếm</button>
-      <a href="/" class="btn btn-secondary">🔄 Xóa bộ lọc</a>
-    </div>
-  </form>
+      <div style="display: flex; gap: 0.5rem;">
+        <button type="submit" class="btn btn-primary" style="margin: 0;">
+          <i class="fas fa-search"></i>
+          Tìm kiếm
+        </button>
+        <a href="/" class="btn btn-secondary" style="margin: 0;">
+          <i class="fas fa-redo"></i>
+          Reset
+        </a>
+      </div>
+    </form>
+  </div>
 </div>
 
 <% if (products.length === 0) { %>
-  <div class="empty-state">
-    <h2>Không tìm thấy sản phẩm nào</h2>
-    <p>Hãy thử thay đổi bộ lọc hoặc thêm sản phẩm mới!</p>
-    <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
-      <a href="/create" class="btn" style="margin-top: 20px;">Thêm sản phẩm</a>
-    <% } %>
-  </div>
-<% } else { %>
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Hình ảnh</th>
-          <th>Tên sản phẩm</th>
-          <th>Danh mục</th>
-          <th>Giá (VNĐ)</th>
-          <th>Số lượng</th>
-          <th>Trạng thái</th>
-          <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
-            <th>Thao tác</th>
-          <% } %>
-        </tr>
-      </thead>
-      <tbody>
-        <% products.forEach(p => { %>
-          <tr>
-            <td>
-              <img src="<%= p.url_image %>" alt="<%= p.name %>" class="product-image" />
-            </td>
-            <td class="product-name"><%= p.name %></td>
-            <td>
-              <% if (p.categoryId && typeof categories !== 'undefined' && categories) { %>
-                <% const cat = categories.find(c => c.categoryId === p.categoryId); %>
-                <%= cat ? cat.name : 'N/A' %>
-              <% } else { %>
-                N/A
-              <% } %>
-            </td>
-            <td class="product-price"><%= new Intl.NumberFormat('vi-VN').format(p.price) %> ₫</td>
-            <td class="product-quantity"><%= p.quantity %></td>
-            <td>
-              <% if (p.inventoryStatus) { %>
-                <span class="inventory-badge <%= p.inventoryStatus.status %>">
-                  <%= p.inventoryStatus.label %>
-                </span>
-              <% } %>
-            </td>
-            <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
-              <td>
-                <div class="actions">
-                  <a href="/edit/<%= p.id %>" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;">✏️ Sửa</a>
-                  <form action="/delete/<%= p.id %>" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-danger" style="padding: 8px 16px; font-size: 14px;" 
-                            onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')">🗑️ Xóa</button>
-                  </form>
-                </div>
-              </td>
-            <% } %>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Pagination -->
-  <% if (typeof pagination !== 'undefined' && pagination.hasMore) { %>
-    <div class="pagination">
-      <% if (pagination.page > 1) { %>
-        <a href="?page=<%= pagination.page - 1 %>&<%= new URLSearchParams(filters || {}).toString() %>">« Trước</a>
-      <% } %>
-      <span>Trang <%= pagination.page %></span>
-      <% if (pagination.hasMore) { %>
-        <a href="?page=<%= pagination.page + 1 %>&<%= new URLSearchParams(filters || {}).toString() %>">Sau »</a>
+  <!-- Empty State -->
+  <div class="card">
+    <div class="card-body" style="text-align: center; padding: 4rem 2rem;">
+      <div style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;">
+        <i class="fas fa-box-open"></i>
+      </div>
+      <h2 style="color: var(--text-dark); margin-bottom: 1rem;">Không có sản phẩm nào</h2>
+      <p style="color: var(--text-light); margin-bottom: 2rem;">
+        <%= typeof search !== 'undefined' && search ? 'Không tìm thấy sản phẩm phù hợp với từ khóa tìm kiếm.' : 'Hãy thêm sản phẩm đầu tiên của bạn!' %>
+      </p>
+      <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+        <a href="/create" class="btn btn-primary">
+          <i class="fas fa-plus"></i>
+          Thêm sản phẩm
+        </a>
       <% } %>
     </div>
-  <% } %>
+  </div>
+<% } else { %>
+  <!-- Products Grid -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+    <% products.forEach(product => { %>
+      <div class="card" style="overflow: hidden;">
+        <div style="position: relative; overflow: hidden;">
+          <img src="<%= product.url_image %>" alt="<%= product.name %>" 
+               style="width: 100%; height: 240px; object-fit: cover; transition: transform 0.3s;">
+          
+          <!-- Stock Badge -->
+          <div style="position: absolute; top: 1rem; right: 1rem;">
+            <% 
+              const quantity = Number(product.quantity) || 0;
+              let stockStatus = 'in_stock';
+              let stockText = 'Còn hàng';
+              let stockIcon = 'fas fa-check-circle';
+              
+              if (quantity === 0) {
+                stockStatus = 'out_of_stock';
+                stockText = 'Hết hàng';
+                stockIcon = 'fas fa-times-circle';
+              } else if (quantity <= 10) {
+                stockStatus = 'low_stock';
+                stockText = 'Sắp hết';
+                stockIcon = 'fas fa-exclamation-triangle';
+              }
+            %>
+            <%
+              const quantity = Number(product.quantity) || 0;
+              let stockClass = 'stock-success';
+              
+              if (quantity === 0) {
+                stockClass = 'stock-danger';
+              } else if (quantity <= 10) {
+                stockClass = 'stock-warning';
+              }
+            %>
+            <span class="stock-badge <%= stockClass %>">
+              <i class="<%= stockIcon %>"></i>
+              <%= stockText %>
+            </span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <h3 style="color: var(--text-dark); margin-bottom: 0.5rem; font-size: 1.25rem; line-height: 1.4;">
+            <%= product.name %>
+          </h3>
+          
+          <%
+            // Tìm tên category từ categoryId
+            let categoryName = null;
+            if (product.categoryId && typeof categories !== 'undefined' && categories) {
+              const category = categories.find(cat => cat.categoryId === product.categoryId);
+              if (category) {
+                categoryName = category.name;
+              }
+            }
+          %>
+          
+          <% if (categoryName) { %>
+            <div style="display: inline-flex; align-items: center; background: var(--bg-light); color: var(--text-light); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; margin-bottom: 1rem;">
+              <i class="fas fa-tag" style="margin-right: 0.25rem;"></i>
+              <%= categoryName %>
+            </div>
+          <% } %>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div style="color: var(--primary-color); font-size: 1.5rem; font-weight: 700;">
+              <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price) %>
+            </div>
+            <div style="color: var(--text-light); font-size: 0.875rem;">
+              <i class="fas fa-boxes"></i>
+              SL: <%= product.quantity %>
+            </div>
+          </div>
+
+          <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+            <div style="display: flex; gap: 0.5rem;">
+              <a href="/edit/<%= product.id %>" class="btn btn-secondary" style="flex: 1; margin: 0; padding: 0.5rem; font-size: 0.875rem;">
+                <i class="fas fa-edit"></i>
+                Sửa
+              </a>
+              <form action="/delete/<%= product.id %>" method="post" style="flex: 1;">
+                <button type="submit" class="btn btn-danger" 
+                        style="width: 100%; margin: 0; padding: 0.5rem; font-size: 0.875rem;"
+                        onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')">
+                  <i class="fas fa-trash"></i>
+                  Xóa
+                </button>
+              </form>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    <% }) %>
+  </div>
 <% } %>
+
+<style>
+  .card:hover img {
+    transform: scale(1.05);
+  }
+  
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  .stock-badge {
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .stock-success {
+    background: #10b981;
+  }
+  
+  .stock-warning {
+    background: #f59e0b;
+  }
+  
+  .stock-danger {
+    background: #ef4444;
+  }
+</style>
 
 <%- include('../footer') %>

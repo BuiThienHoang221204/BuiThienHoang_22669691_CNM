@@ -1,116 +1,76 @@
 <%- include('../layout', {title: typeof title !== 'undefined' ? title : 'Đăng nhập'}) %>
+
+<div class="card" style="max-width: 480px; margin: 3rem auto;">
+  <div class="card-header" style="text-align: center; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; border: none;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">
+      <i class="fas fa-shield-alt"></i>
+    </div>
+    <h2 style="color: white; margin: 0;">Đăng nhập hệ thống</h2>
+    <p style="opacity: 0.9; margin-top: 0.5rem;">Vui lòng nhập thông tin để tiếp tục</p>
+  </div>
+
+  <div class="card-body" style="padding: 2rem;">
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div style="background: #fed7d7; color: #c53030; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #e53e3e;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <%= error %>
+      </div>
+    <% } %>
+
+    <% if (typeof message !== 'undefined' && message) { %>
+      <div style="background: #c6f6d5; color: #22543d; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #38a169;">
+        <i class="fas fa-check-circle"></i>
+        <%= message %>
+      </div>
+    <% } %>
+
+    <form action="/login" method="POST">
+      <input type="hidden" name="redirect" value="<%= typeof redirect !== 'undefined' ? redirect : '/' %>">
+      
+      <div style="margin-bottom: 1.5rem;">
+        <label for="username" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">
+          <i class="fas fa-user"></i> Tên đăng nhập
+        </label>
+        <input type="text" id="username" name="username" required autofocus
+               style="width: 100%; padding: 0.875rem 1rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: var(--transition); background: #fafafa;"
+               placeholder="Nhập tên đăng nhập của bạn">
+      </div>
+
+      <div style="margin-bottom: 2rem;">
+        <label for="password" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">
+          <i class="fas fa-lock"></i> Mật khẩu
+        </label>
+        <input type="password" id="password" name="password" required
+               style="width: 100%; padding: 0.875rem 1rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: var(--transition); background: #fafafa;"
+               placeholder="Nhập mật khẩu của bạn">
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem; font-weight: 600;">
+        <i class="fas fa-sign-in-alt"></i>
+        Đăng nhập
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+      <p style="color: var(--text-light); font-size: 0.875rem;">
+        <i class="fas fa-info-circle"></i>
+        Hệ thống quản lý sản phẩm E-Commerce
+      </p>
+    </div>
+  </div>
+</div>
+
 <style>
-  .login-container {
-    max-width: 400px;
-    margin: 50px auto;
-    padding: 30px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-
-  .login-container h2 {
-    text-align: center;
-    color: #1976d2;
-    margin-bottom: 30px;
-  }
-
-  .form-group {
-    margin-bottom: 20px;
-  }
-
-  .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #333;
-  }
-
-  .form-group input {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid #e0e0e0;
-    border-radius: 5px;
-    font-size: 16px;
-    transition: border-color 0.3s;
-  }
-
-  .form-group input:focus {
+  input[type="text"]:focus,
+  input[type="password"]:focus {
     outline: none;
-    border-color: #1976d2;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   }
 
-  .error-message {
-    background: #ffebee;
-    color: #c62828;
-    padding: 12px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    border-left: 4px solid #c62828;
-  }
-
-  .success-message {
-    background: #e8f5e9;
-    color: #2e7d32;
-    padding: 12px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    border-left: 4px solid #2e7d32;
-  }
-
-  .form-actions {
-    margin-top: 30px;
-  }
-
-  .btn-login {
-    width: 100%;
-    padding: 12px;
-    background: #1976d2;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .btn-login:hover {
-    background: #1565c0;
+  .card:hover {
+    transform: none;
   }
 </style>
-
-<div class="login-container">
-  <h2>🔐 Đăng nhập</h2>
-
-  <% if (typeof error !== 'undefined' && error) { %>
-    <div class="error-message">
-      <%= error %>
-    </div>
-  <% } %>
-
-  <% if (typeof message !== 'undefined' && message) { %>
-    <div class="success-message">
-      <%= message %>
-    </div>
-  <% } %>
-
-  <form action="/login" method="POST">
-    <input type="hidden" name="redirect" value="<%= typeof redirect !== 'undefined' ? redirect : '/' %>">
-    
-    <div class="form-group">
-      <label for="username">Tên đăng nhập</label>
-      <input type="text" id="username" name="username" required autofocus>
-    </div>
-
-    <div class="form-group">
-      <label for="password">Mật khẩu</label>
-      <input type="password" id="password" name="password" required>
-    </div>
-
-    <div class="form-actions">
-      <button type="submit" class="btn-login">Đăng nhập</button>
-    </div>
-  </form>
-</div>
 
 <%- include('../footer') %>
