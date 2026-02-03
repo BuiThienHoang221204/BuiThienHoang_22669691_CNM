@@ -26,7 +26,7 @@ exports.getProductById = async (id) => {
   const result = await db.send(
     new GetCommand({
       TableName: TABLE_NAME,
-      Key: { id }
+      Key: { productId: id }
     })
   );
   return result.Item || null;
@@ -144,7 +144,7 @@ exports.updateProduct = async (id, updateData) => {
   await db.send(
     new UpdateCommand({
       TableName: TABLE_NAME,
-      Key: { id },
+      Key: { productId: id },
       UpdateExpression: "SET " + updateExpression.join(", "),
       ExpressionAttributeNames: Object.keys(expressionAttributeNames).length > 0 ? expressionAttributeNames : undefined,
       ExpressionAttributeValues: expressionAttributeValues
@@ -165,7 +165,7 @@ exports.deleteProduct = async (id) => {
   await db.send(
     new DeleteCommand({
       TableName: TABLE_NAME,
-      Key: { id }
+      Key: { productId: id }
     })
   );
 };

@@ -11,7 +11,8 @@ exports.createProduct = async (productData, imageFile) => {
   }
 
   const product = {
-    id: uuidv4(),
+    productId: uuidv4(),  // Changed from 'id' to 'productId' to match DynamoDB key
+    id: uuidv4(),         // Keep 'id' for backward compatibility
     name: productData.name,
     price: Number(productData.price),
     quantity: Number(productData.quantity),
@@ -20,6 +21,9 @@ exports.createProduct = async (productData, imageFile) => {
     isDeleted: false,
     createdAt: new Date().toISOString()
   };
+  
+  // Set id = productId for consistency
+  product.id = product.productId;
 
   return await productRepository.createProduct(product);
 };
@@ -29,6 +33,10 @@ exports.getProductById = async (id) => {
   const product = await productRepository.getProductById(id);
   if (!product || product.isDeleted === true) {
     return null;
+  }
+  // Ensure 'id' field exists for view compatibility
+  if (!product.id && product.productId) {
+    product.id = product.productId;
   }
   return product;
 };
@@ -44,10 +52,16 @@ exports.getProducts = async (filters = {}, page = 1, limit = 10) => {
   );
 
   // Tính toán inventory status cho mỗi product
-  const productsWithStatus = result.items.map(product => ({
-    ...product,
-    inventoryStatus: getInventoryStatus(product.quantity)
-  }));
+  const productsWithStatus = result.items.map(product => {
+    // Ensure 'id' field exists for view compatibility
+    if (!product.id && product.productId) {
+      product.id = product.productId;
+    }
+    return {
+      ...product,
+      inventoryStatus: getInventoryStatus(product.quantity)
+    };
+  });
 
   return {
     products: productsWithStatus,
