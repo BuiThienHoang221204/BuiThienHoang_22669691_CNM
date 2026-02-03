@@ -57,8 +57,19 @@ exports.login = async (req, res) => {
     req.session.username = user.username;
     req.session.role = user.role;
 
-    // Redirect
-    res.redirect(redirect);
+    // Lưu session trước khi redirect (quan trọng!)
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.render("auth/login", {
+          title: "Đăng nhập",
+          error: "Lỗi khi lưu phiên đăng nhập",
+          redirect: redirect
+        });
+      }
+      // Redirect sau khi session đã được lưu
+      res.redirect(redirect);
+    });
   } catch (error) {
     console.error("Login error:", error);
     res.render("auth/login", {
