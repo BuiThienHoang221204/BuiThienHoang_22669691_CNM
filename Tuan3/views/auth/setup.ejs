@@ -1,6 +1,6 @@
-<%- include('../layout', {title: typeof title !== 'undefined' ? title : 'Đăng nhập'}) %>
+<%- include('../layout', {title: typeof title !== 'undefined' ? title : 'Thiết lập tài khoản admin'}) %>
 <style>
-  .login-container {
+  .setup-container {
     max-width: 400px;
     margin: 50px auto;
     padding: 30px;
@@ -9,10 +9,17 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   }
 
-  .login-container h2 {
+  .setup-container h2 {
     text-align: center;
     color: #1976d2;
+    margin-bottom: 10px;
+  }
+
+  .setup-container p {
+    text-align: center;
+    color: #666;
     margin-bottom: 30px;
+    font-size: 0.9em;
   }
 
   .form-group {
@@ -49,20 +56,11 @@
     border-left: 4px solid #c62828;
   }
 
-  .success-message {
-    background: #e8f5e9;
-    color: #2e7d32;
-    padding: 12px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    border-left: 4px solid #2e7d32;
-  }
-
   .form-actions {
     margin-top: 30px;
   }
 
-  .btn-login {
+  .btn-setup {
     width: 100%;
     padding: 12px;
     background: #1976d2;
@@ -74,13 +72,14 @@
     transition: background 0.2s;
   }
 
-  .btn-login:hover {
+  .btn-setup:hover {
     background: #1565c0;
   }
 </style>
 
-<div class="login-container">
-  <h2>🔐 Đăng nhập</h2>
+<div class="setup-container">
+  <h2>🔧 Thiết lập hệ thống</h2>
+  <p>Tạo tài khoản admin đầu tiên để bắt đầu sử dụng hệ thống</p>
 
   <% if (typeof error !== 'undefined' && error) { %>
     <div class="error-message">
@@ -88,27 +87,25 @@
     </div>
   <% } %>
 
-  <% if (typeof message !== 'undefined' && message) { %>
-    <div class="success-message">
-      <%= message %>
-    </div>
-  <% } %>
-
-  <form action="/login" method="POST">
-    <input type="hidden" name="redirect" value="<%= typeof redirect !== 'undefined' ? redirect : '/' %>">
-    
+  <form action="/setup" method="POST">
     <div class="form-group">
-      <label for="username">Tên đăng nhập</label>
+      <label for="username">Tên đăng nhập *</label>
       <input type="text" id="username" name="username" required autofocus>
     </div>
 
     <div class="form-group">
-      <label for="password">Mật khẩu</label>
-      <input type="password" id="password" name="password" required>
+      <label for="password">Mật khẩu *</label>
+      <input type="password" id="password" name="password" required minlength="6">
+      <small style="color: #666; display: block; margin-top: 5px;">Tối thiểu 6 ký tự</small>
+    </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">Xác nhận mật khẩu *</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6">
     </div>
 
     <div class="form-actions">
-      <button type="submit" class="btn-login">Đăng nhập</button>
+      <button type="submit" class="btn-setup">Tạo tài khoản admin</button>
     </div>
   </form>
 </div>

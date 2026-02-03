@@ -1,247 +1,171 @@
-const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { 
-  DynamoDBDocumentClient, 
-  GetCommand, 
-  PutCommand, 
+const {
+  PutCommand,
+  GetCommand,
   ScanCommand,
-  UpdateCommand 
+  UpdateCommand,
+  QueryCommand
 } = require("@aws-sdk/lib-dynamodb");
-const { v4: uuidv4 } = require("uuid");
 
-// Cấu hình DynamoDB Client
-const client = new DynamoDBClient({
-  region: process.env.AWS_REGION || "us-east-1"
-});
+const db = require("../services/dynamodb.service");
 
-const docClient = DynamoDBDocumentClient.from(client);
+const TABLE_NAME = process.env.DYNAMODB_TABLE || "Products";
 
-const PRODUCTS_TABLE = process.env.DYNAMODB_TABLE || "Products";
-const PRODUCT_LOGS_TABLE = process.env.DYNAMODB_PRODUCT_LOGS_TABLE || "ProductLogs";
-
-class ProductRepository {
-  // Tạo product mới
-  async createProduct(productData) {
-    const { name, price, quantity, categoryId, url_image } = productData;
-    
-    const product = {
-      id: uuidv4(),
-      name,
-      price: Number(price),
-      quantity: Number(quantity),
-      categoryId: categoryId || null,
-      url_image: url_image || null,
-      isDeleted: false,
-      createdAt: new Date().toISOString()
-    };
-
-    const command = new PutCommand({
-      TableName: PRODUCTS_TABLE,
+// Tạo product mới
+exports.createProduct = async (product) => {
+  await db.send(
+    new PutCommand({
+      TableName: TABLE_NAME,
       Item: product
-    });
+    })
+  );
+  return product;
+};
 
-    await docClient.send(command);
-    return product;
-  }
+// Lấy product theo id
+exports.getProductById = async (id) => {
+  const result = await db.send(
+    new GetCommand({
+      TableName: TABLE_NAME,
+      Key: { id }
+    })
+  );
+  return result.Item || null;
+};
 
-  // Lấy tất cả products (không bị xóa)
-  async getAllProducts(filters = {}) {
-    const { categoryId, minPrice, maxPrice, name, includeDeleted = false } = filters;
-    
-    let filterExpression = includeDeleted ? "" : "isDeleted = :isDeleted";
-    const expressionAttributeValues = includeDeleted ? {} : { ":isDeleted": false };
-    const expressionAttributeNames = {};
-
-    // Filter by category
-    if (categoryId) {
-      if (filterExpression) filterExpression += " AND ";
-      filterExpression += "categoryId = :categoryId";
-      expressionAttributeValues[":categoryId"] = categoryId;
-    }
-
-    // Filter by price range
-    if (minPrice !== undefined) {
-      if (filterExpression) filterExpression += " AND ";
-      filterExpression += "price >= :minPrice";
-      expressionAttributeValues[":minPrice"] = Number(minPrice);
-    }
-
-    if (maxPrice !== undefined) {
-      if (filterExpression) filterExpression += " AND ";
-      filterExpression += "price <= :maxPrice";
-      expressionAttributeValues[":maxPrice"] = Number(maxPrice);
-    }
-
-    // Filter by name (contains)
-    if (name) {
-      if (filterExpression) filterExpression += " AND ";
-      filterExpression += "contains(#name, :name)";
-      expressionAttributeNames["#name"] = "name";
-      expressionAttributeValues[":name"] = name;
-    }
-
-    const command = new ScanCommand({
-      TableName: PRODUCTS_TABLE,
-      FilterExpression: filterExpression || undefined,
-      ExpressionAttributeValues: Object.keys(expressionAttributeValues).length > 0 ? expressionAttributeValues : undefined,
-      ExpressionAttributeNames: Object.keys(expressionAttributeNames).length > 0 ? expressionAttributeNames : undefined
-    });
-
-    const result = await docClient.send(command);
-    return result.Items || [];
-  }
-
-  // Tìm product theo ID
-  async findById(productId, includeDeleted = false) {
-    const command = new GetCommand({
-      TableName: PRODUCTS_TABLE,
-      Key: { id: productId }
-    });
-
-    const result = await docClient.send(command);
-    const product = result.Item;
-    
-    if (!product || (!includeDeleted && product.isDeleted)) {
-      return null;
-    }
-    
-    return product;
-  }
-
-  // Cập nhật product
-  async updateProduct(productId, updateData) {
-    const { name, price, quantity, categoryId, url_image } = updateData;
-    
-    const updateExpression = [];
-    const expressionAttributeValues = {};
-    const expressionAttributeNames = {};
-
-    if (name) {
-      updateExpression.push("#name = :name");
-      expressionAttributeNames["#name"] = "name";
-      expressionAttributeValues[":name"] = name;
-    }
-
-    if (price !== undefined) {
-      updateExpression.push("price = :price");
-      expressionAttributeValues[":price"] = Number(price);
-    }
-
-    if (quantity !== undefined) {
-      updateExpression.push("quantity = :quantity");
-      expressionAttributeValues[":quantity"] = Number(quantity);
-    }
-
-    if (categoryId !== undefined) {
-      updateExpression.push("categoryId = :categoryId");
-      expressionAttributeValues[":categoryId"] = categoryId;
-    }
-
-    if (url_image !== undefined) {
-      updateExpression.push("url_image = :url_image");
-      expressionAttributeValues[":url_image"] = url_image;
-    }
-
-    if (updateExpression.length === 0) {
-      throw new Error("Không có dữ liệu để cập nhật");
-    }
-
-    const command = new UpdateCommand({
-      TableName: PRODUCTS_TABLE,
-      Key: { id: productId },
-      UpdateExpression: `SET ${updateExpression.join(", ")}`,
-      ExpressionAttributeValues: expressionAttributeValues,
-      ExpressionAttributeNames: Object.keys(expressionAttributeNames).length > 0 ? expressionAttributeNames : undefined,
-      ConditionExpression: "attribute_exists(id) AND isDeleted = :false",
+// Lấy tất cả products (không bao gồm soft deleted)
+exports.getAllProducts = async () => {
+  const result = await db.send(
+    new ScanCommand({
+      TableName: TABLE_NAME,
+      FilterExpression: "attribute_not_exists(isDeleted) OR isDeleted = :false",
       ExpressionAttributeValues: {
-        ...expressionAttributeValues,
         ":false": false
-      },
-      ReturnValues: "ALL_NEW"
-    });
-
-    const result = await docClient.send(command);
-    return result.Attributes;
-  }
-
-  // Soft delete product
-  async softDeleteProduct(productId) {
-    const command = new UpdateCommand({
-      TableName: PRODUCTS_TABLE,
-      Key: { id: productId },
-      UpdateExpression: "SET isDeleted = :true",
-      ExpressionAttributeValues: {
-        ":true": true,
-        ":false": false
-      },
-      ConditionExpression: "attribute_exists(id) AND isDeleted = :false",
-      ReturnValues: "ALL_NEW"
-    });
-
-    const result = await docClient.send(command);
-    return result.Attributes;
-  }
-
-  // Khôi phục product
-  async restoreProduct(productId) {
-    const command = new UpdateCommand({
-      TableName: PRODUCTS_TABLE,
-      Key: { id: productId },
-      UpdateExpression: "SET isDeleted = :false",
-      ExpressionAttributeValues: {
-        ":false": false,
-        ":true": true
-      },
-      ConditionExpression: "attribute_exists(id) AND isDeleted = :true",
-      ReturnValues: "ALL_NEW"
-    });
-
-    const result = await docClient.send(command);
-    return result.Attributes;
-  }
-
-  // Lấy products theo inventory status
-  async getProductsByInventoryStatus() {
-    const products = await this.getAllProducts();
-    
-    return {
-      inStock: products.filter(p => p.quantity > 5),
-      lowStock: products.filter(p => p.quantity > 0 && p.quantity <= 5),
-      outOfStock: products.filter(p => p.quantity === 0)
-    };
-  }
-
-  // Log product action
-  async logProductAction(productId, action, userId) {
-    const logEntry = {
-      logId: uuidv4(),
-      productId,
-      action, // CREATE, UPDATE, DELETE
-      userId,
-      timestamp: new Date().toISOString()
-    };
-
-    const command = new PutCommand({
-      TableName: PRODUCT_LOGS_TABLE,
-      Item: logEntry
-    });
-
-    await docClient.send(command);
-    return logEntry;
-  }
-
-  // Lấy logs của product
-  async getProductLogs(productId) {
-    const command = new ScanCommand({
-      TableName: PRODUCT_LOGS_TABLE,
-      FilterExpression: "productId = :productId",
-      ExpressionAttributeValues: {
-        ":productId": productId
       }
-    });
+    })
+  );
+  return result.Items || [];
+};
 
-    const result = await docClient.send(command);
-    return result.Items || [];
+// Lấy products với filter và pagination
+exports.getProductsWithFilter = async (filters = {}, limit = 10, lastEvaluatedKey = null) => {
+  let filterExpressions = [];
+  let expressionAttributeValues = {};
+  let expressionAttributeNames = {};
+
+  // Filter: isDeleted = false
+  filterExpressions.push("(attribute_not_exists(isDeleted) OR isDeleted = :false)");
+  expressionAttributeValues[":false"] = false;
+
+  // Filter: categoryId
+  if (filters.categoryId) {
+    filterExpressions.push("categoryId = :categoryId");
+    expressionAttributeValues[":categoryId"] = filters.categoryId;
   }
-}
 
-module.exports = new ProductRepository();
+  // Filter: price range
+  if (filters.minPrice !== undefined) {
+    filterExpressions.push("price >= :minPrice");
+    expressionAttributeValues[":minPrice"] = filters.minPrice;
+  }
+  if (filters.maxPrice !== undefined) {
+    filterExpressions.push("price <= :maxPrice");
+    expressionAttributeValues[":maxPrice"] = filters.maxPrice;
+  }
+
+  // Filter: name contains (scan required - tốn chi phí)
+  // Lưu ý: Scan tốn chi phí vì phải đọc toàn bộ bảng
+  // Query chỉ dùng được với partition key và sort key
+  // Để tối ưu, nên tạo GSI với name làm sort key hoặc dùng Elasticsearch
+  const scanParams = {
+    TableName: TABLE_NAME,
+    FilterExpression: filterExpressions.join(" AND "),
+    ExpressionAttributeValues: expressionAttributeValues,
+    Limit: limit
+  };
+
+  if (lastEvaluatedKey) {
+    scanParams.ExclusiveStartKey = lastEvaluatedKey;
+  }
+
+  // Nếu có filter theo name, thêm vào FilterExpression
+  if (filters.name) {
+    scanParams.FilterExpression += " AND contains(#n, :name)";
+    expressionAttributeNames["#n"] = "name";
+    expressionAttributeValues[":name"] = filters.name;
+    scanParams.ExpressionAttributeNames = expressionAttributeNames;
+  }
+
+  const result = await db.send(new ScanCommand(scanParams));
+
+  return {
+    items: result.Items || [],
+    lastEvaluatedKey: result.LastEvaluatedKey || null,
+    count: result.Count || 0
+  };
+};
+
+// Cập nhật product
+exports.updateProduct = async (id, updateData) => {
+  const updateExpression = [];
+  const expressionAttributeNames = {};
+  const expressionAttributeValues = {};
+
+  if (updateData.name !== undefined) {
+    updateExpression.push("#n = :n");
+    expressionAttributeNames["#n"] = "name";
+    expressionAttributeValues[":n"] = updateData.name;
+  }
+
+  if (updateData.price !== undefined) {
+    updateExpression.push("price = :p");
+    expressionAttributeValues[":p"] = updateData.price;
+  }
+
+  if (updateData.quantity !== undefined) {
+    updateExpression.push("quantity = :q");
+    expressionAttributeValues[":q"] = updateData.quantity;
+  }
+
+  if (updateData.categoryId !== undefined) {
+    updateExpression.push("categoryId = :c");
+    expressionAttributeValues[":c"] = updateData.categoryId;
+  }
+
+  if (updateData.url_image !== undefined) {
+    updateExpression.push("url_image = :img");
+    expressionAttributeValues[":img"] = updateData.url_image;
+  }
+
+  if (updateData.isDeleted !== undefined) {
+    updateExpression.push("isDeleted = :del");
+    expressionAttributeValues[":del"] = updateData.isDeleted;
+  }
+
+  await db.send(
+    new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: { id },
+      UpdateExpression: "SET " + updateExpression.join(", "),
+      ExpressionAttributeNames: Object.keys(expressionAttributeNames).length > 0 ? expressionAttributeNames : undefined,
+      ExpressionAttributeValues: expressionAttributeValues
+    })
+  );
+
+  return await this.getProductById(id);
+};
+
+// Soft delete product
+exports.softDeleteProduct = async (id) => {
+  return await this.updateProduct(id, { isDeleted: true });
+};
+
+// Hard delete product (xóa thật sự)
+exports.deleteProduct = async (id) => {
+  const { DeleteCommand } = require("@aws-sdk/lib-dynamodb");
+  await db.send(
+    new DeleteCommand({
+      TableName: TABLE_NAME,
+      Key: { id }
+    })
+  );
+};

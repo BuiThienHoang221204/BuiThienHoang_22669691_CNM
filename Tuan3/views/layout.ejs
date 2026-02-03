@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= typeof title !== 'undefined' ? title : "Quản lý sản phẩm" %></title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -13,264 +12,118 @@
     }
 
     body {
-      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #e3f2fd;
       min-height: 100vh;
-      color: #333;
+      padding: 20px;
     }
 
-    .app-container {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: 280px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-right: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
-      position: fixed;
-      height: 100vh;
-      left: 0;
-      top: 0;
-      z-index: 1000;
-      transition: transform 0.3s ease;
-    }
-
-    .sidebar-header {
-      padding: 30px 25px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      color: white;
-    }
-
-    .sidebar-header h1 {
-      font-size: 1.5em;
-      font-weight: 700;
-      margin-bottom: 5px;
-    }
-
-    .sidebar-header .subtitle {
-      font-size: 0.9em;
-      opacity: 0.9;
-    }
-
-    .sidebar-nav {
-      padding: 20px 0;
-    }
-
-    .nav-item {
-      margin: 5px 15px;
-    }
-
-    .nav-link {
-      display: flex;
-      align-items: center;
-      padding: 15px 20px;
-      color: #555;
-      text-decoration: none;
-      border-radius: 12px;
-      transition: all 0.3s ease;
-      font-weight: 500;
-      position: relative;
-    }
-
-    .nav-link:hover {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      transform: translateX(5px);
-    }
-
-    .nav-link.active {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    }
-
-    .nav-link i {
-      margin-right: 12px;
-      width: 20px;
-      font-size: 1.1em;
-    }
-
-    /* Main Content */
-    .main-content {
-      flex: 1;
-      margin-left: 280px;
-      background: #f8f9ff;
-      min-height: 100vh;
-    }
-
-    .content-wrapper {
-      padding: 40px;
-      max-width: 1400px;
+    .container {
+      max-width: 1200px;
       margin: 0 auto;
-    }
-
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 40px;
       background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    header {
+      background: #1976d2;
+      color: white;
       padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      text-align: center;
     }
 
-    .page-header h2 {
-      color: #333;
-      font-size: 2.2em;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 15px;
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
     }
 
-    .page-header h2 i {
-      color: #667eea;
+    .subtitle {
+      font-size: 1.1em;
+      opacity: 0.95;
+      margin-top: 10px;
+    }
+
+    main {
+      padding: 30px;
+    }
+
+    footer {
+      background: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      color: #666;
+      border-top: 1px solid #e0e0e0;
     }
 
     /* Buttons */
     .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 28px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: inline-block;
+      padding: 12px 24px;
+      background: #1976d2;
       color: white;
       text-decoration: none;
-      border-radius: 12px;
+      border-radius: 5px;
       border: none;
       cursor: pointer;
       font-size: 16px;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      transition: background 0.2s;
+      margin: 5px;
     }
 
     .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      background: #1565c0;
     }
 
     .btn-danger {
-      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+      background: #d32f2f;
     }
 
     .btn-danger:hover {
-      box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+      background: #c62828;
     }
 
     .btn-secondary {
-      background: linear-gradient(135deg, #a8a8a8 0%, #8a8a8a 100%);
-      box-shadow: 0 4px 15px rgba(168, 168, 168, 0.3);
+      background: #424242;
     }
 
     .btn-secondary:hover {
-      box-shadow: 0 8px 25px rgba(168, 168, 168, 0.4);
+      background: #212121;
     }
 
-    .btn-success {
-      background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
-      box-shadow: 0 4px 15px rgba(81, 207, 102, 0.3);
+    /* Page header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
     }
 
-    .btn-success:hover {
-      box-shadow: 0 8px 25px rgba(81, 207, 102, 0.4);
-    }
-
-    /* Mobile Menu Toggle */
-    .menu-toggle {
-      display: none;
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      z-index: 1001;
-      background: rgba(255, 255, 255, 0.9);
-      border: none;
-      border-radius: 10px;
-      padding: 12px;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    .page-header h2 {
+      color: #333;
+      font-size: 2em;
     }
 
     /* Responsive */
-    @media (max-width: 1024px) {
-      .sidebar {
-        transform: translateX(-100%);
-      }
-
-      .sidebar.show {
-        transform: translateX(0);
-      }
-
-      .main-content {
-        margin-left: 0;
-      }
-
-      .menu-toggle {
-        display: block;
-      }
-
-      .content-wrapper {
-        padding: 20px;
-      }
-    }
-
     @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.8em;
+      }
+
       .page-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 20px;
-        padding: 20px;
-      }
-
-      .page-header h2 {
-        font-size: 1.8em;
+        gap: 15px;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Mobile Menu Toggle -->
-  <button class="menu-toggle" onclick="toggleSidebar()">
-    <i class="fas fa-bars"></i>
-  </button>
+  <div class="container">
+    <header>
+      <h1>📦 HỆ THỐNG QUẢN LÝ SẢN PHẨM</h1>
+      <p class="subtitle">Bùi Thiên Hoàng</p>
+    </header>
 
-  <div class="app-container">
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <h1><i class="fas fa-box"></i> ProductManager</h1>
-        <p class="subtitle">Bùi Thiên Hoàng - 22669691</p>
-      </div>
-
-      <nav class="sidebar-nav">
-        <div class="nav-item">
-          <a href="/" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'active' : '' %>">
-            <i class="fas fa-home"></i>
-            <span>Trang chủ</span>
-          </a>
-        </div>
-        <div class="nav-item">
-          <a href="/create" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'create' ? 'active' : '' %>">
-            <i class="fas fa-plus-circle"></i>
-            <span>Thêm sản phẩm</span>
-          </a>
-        </div>
-        <div class="nav-item">
-          <a href="/" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'list' ? 'active' : '' %>">
-            <i class="fas fa-list"></i>
-            <span>Danh sách</span>
-          </a>
-        </div>
-      </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-      <div class="content-wrapper">
+    <main>

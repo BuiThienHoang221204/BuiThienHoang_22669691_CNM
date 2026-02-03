@@ -1,121 +1,141 @@
-const userRepository = require("../repositories/user.repository");
+const authService = require("../services/auth.service");
 
-class AuthController {
-  // Hiển thị trang đăng nhập
-  showLoginForm(req, res) {
-    res.render("auth/login", { 
-      title: "Đăng nhập",
-      error: null 
-    });
+// Hiển thị trang đăng nhập
+exports.showLogin = async (req, res) => {
+  // Nếu đã đăng nhập, redirect về trang chủ
+  if (req.session && req.session.userId) {
+    return res.redirect("/");
   }
 
-  // Xử lý đăng nhập
-  async login(req, res) {
-    try {
-      const { username, password } = req.body;
+  // Kiểm tra xem đã có admin chưa, nếu chưa thì redirect đến setup
+  try {
+    const hasAdmin = await authService.hasAdmin();
+    if (!hasAdmin) {
+      return res.redirect("/setup");
+    }
+  } catch (error) {
+    console.error("Error checking admin:", error);
+    // Nếu có lỗi, vẫn hiển thị trang login
+  }
 
-      if (!username || !password) {
-        return res.render("auth/login", {
-          title: "Đăng nhập",
-          error: "Vui lòng nhập đầy đủ thông tin"
-        });
-      }
+  const error = req.query.error;
+  const message = req.query.message;
+  const redirect = req.query.redirect || "/";
 
-      // Xác thực user
-      const user = await userRepository.authenticate(username, password);
+  res.render("auth/login", {
+    title: "Đăng nhập",
+    error,
+    message,
+    redirect
+  });
+};
 
-      if (!user) {
-        return res.render("auth/login", {
-          title: "Đăng nhập",
-          error: "Tên đăng nhập hoặc mật khẩu không đúng"
-        });
-      }
+// Xử lý đăng nhập
+exports.login = async (req, res) => {
+  try {
+    const { username, password, redirect } = req.body;
 
-      // Lưu user vào session
-      req.session.user = user;
-
-      // Redirect về trang chủ
-      res.redirect("/");
-
-    } catch (error) {
-      console.error("Lỗi đăng nhập:", error);
-      res.render("auth/login", {
+    if (!username || !password) {
+      return res.render("auth/login", {
         title: "Đăng nhập",
-        error: "Đã xảy ra lỗi, vui lòng thử lại"
+        error: "Vui lòng nhập đầy đủ thông tin",
+        redirect: redirect || "/"
       });
     }
-  }
 
-  // Xử lý đăng xuất
-  logout(req, res) {
-    req.session.destroy((err) => {
-      if (err) {
-        console.error("Lỗi đăng xuất:", err);
-      }
-      res.redirect("/login");
+    // Đăng nhập
+    const user = await authService.login(username, password);
+
+    // Tạo session
+    req.session.userId = user.userId;
+    req.session.username = user.username;
+    req.session.role = user.role;
+
+    // Redirect
+    const redirectUrl = redirect || "/";
+    res.redirect(redirectUrl);
+  } catch (error) {
+    console.error("Login error:", error);
+    res.render("auth/login", {
+      title: "Đăng nhập",
+      error: error.message || "Đăng nhập thất bại",
+      redirect: req.body.redirect || "/"
     });
   }
+};
 
-  // Hiển thị trang đăng ký (chỉ admin)
-  showRegisterForm(req, res) {
-    res.render("auth/register", {
-      title: "Đăng ký tài khoản",
-      error: null
+// Đăng xuất
+exports.logout = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Logout error:", err);
+    }
+    res.redirect("/login");
+  });
+};
+
+// Hiển thị trang đăng ký admin đầu tiên
+exports.showSetup = async (req, res) => {
+  try {
+    const hasAdmin = await authService.hasAdmin();
+    if (hasAdmin) {
+      return res.redirect("/login");
+    }
+
+    const error = req.query.error;
+    res.render("auth/setup", {
+      title: "Thiết lập tài khoản admin đầu tiên",
+      error
+    });
+  } catch (error) {
+    console.error("Show setup error:", error);
+    res.status(500).render("error", {
+      title: "Lỗi",
+      message: "Lỗi khi kiểm tra hệ thống: " + error.message
     });
   }
+};
 
-  // Xử lý đăng ký (chỉ admin)
-  async register(req, res) {
-    try {
-      const { username, password, confirmPassword, role } = req.body;
+// Xử lý đăng ký admin đầu tiên
+exports.setup = async (req, res) => {
+  try {
+    const hasAdmin = await authService.hasAdmin();
+    if (hasAdmin) {
+      return res.redirect("/login");
+    }
 
-      if (!username || !password || !confirmPassword) {
-        return res.render("auth/register", {
-          title: "Đăng ký tài khoản",
-          error: "Vui lòng nhập đầy đủ thông tin"
-        });
-      }
+    const { username, password, confirmPassword } = req.body;
 
-      if (password !== confirmPassword) {
-        return res.render("auth/register", {
-          title: "Đăng ký tài khoản",
-          error: "Mật khẩu xác nhận không khớp"
-        });
-      }
-
-      if (password.length < 6) {
-        return res.render("auth/register", {
-          title: "Đăng ký tài khoản",
-          error: "Mật khẩu phải có ít nhất 6 ký tự"
-        });
-      }
-
-      // Kiểm tra user đã tồn tại
-      const existingUser = await userRepository.findByUsername(username);
-      if (existingUser) {
-        return res.render("auth/register", {
-          title: "Đăng ký tài khoản",
-          error: "Tên đăng nhập đã tồn tại"
-        });
-      }
-
-      // Tạo user mới
-      await userRepository.createUser({
-        username,
-        password,
-        role: role || "staff"
-      });
-
-      res.redirect("/admin/users?success=1");
-
-    } catch (error) {
-      console.error("Lỗi đăng ký:", error);
-      res.render("auth/register", {
-        title: "Đăng ký tài khoản",
-        error: "Đã xảy ra lỗi, vui lòng thử lại"
+    if (!username || !password || !confirmPassword) {
+      return res.render("auth/setup", {
+        title: "Thiết lập tài khoản admin đầu tiên",
+        error: "Vui lòng nhập đầy đủ thông tin"
       });
     }
-  }
-}
 
-module.exports = new AuthController();
+    if (password !== confirmPassword) {
+      return res.render("auth/setup", {
+        title: "Thiết lập tài khoản admin đầu tiên",
+        error: "Mật khẩu xác nhận không khớp"
+      });
+    }
+
+    if (password.length < 6) {
+      return res.render("auth/setup", {
+        title: "Thiết lập tài khoản admin đầu tiên",
+        error: "Mật khẩu phải có ít nhất 6 ký tự"
+      });
+    }
+
+    // Tạo admin đầu tiên
+    await authService.register(username, password, "admin");
+
+    res.redirect("/login?message=Tạo tài khoản admin thành công! Vui lòng đăng nhập.");
+  } catch (error) {
+    console.error("Setup error:", error);
+    res.render("auth/setup", {
+      title: "Thiết lập tài khoản admin đầu tiên",
+      error: error.message || "Lỗi khi tạo tài khoản admin"
+    });
+  }
+};

@@ -3,15 +3,15 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const { requireAdmin, requireStaffOrAdmin } = require("../middlewares/auth.middleware");
 
 // Cấu hình multer để lưu file tạm
-const upload = multer({ 
+const upload = multer({
   dest: "uploads/",
   limits: { fileSize: 5 * 1024 * 1024 } // Giới hạn 5MB
 });
 
 const controller = require("../controllers/product.controller");
+const { requireAuth, requireAdmin, requireStaff } = require("../middlewares/auth.middleware");
 
 // Middleware để xóa file tạm sau khi upload
 const cleanupUpload = (req, res, next) => {
@@ -29,17 +29,18 @@ const cleanupUpload = (req, res, next) => {
   next();
 };
 
-// Product routes
-router.get("/", requireStaffOrAdmin, controller.getProducts);
-router.get("/create", requireAdmin, controller.showCreateForm);
-router.post("/create", requireAdmin, upload.single("image"), cleanupUpload, controller.createProduct);
-router.get("/edit/:id", requireAdmin, controller.getProductById);
-router.post("/edit/:id", requireAdmin, upload.single("image"), cleanupUpload, controller.updateProduct);
-router.post("/delete/:id", requireAdmin, controller.deleteProduct);
-router.post("/restore/:id", requireAdmin, controller.restoreProduct);
+// Xem danh sách sản phẩm - yêu cầu đăng nhập (staff hoặc admin)
+router.get("/", requireAuth, requireStaff, controller.getProducts);
 
-// Inventory và logs
-router.get("/inventory", requireStaffOrAdmin, controller.getInventoryStatus);
-router.get("/logs/:id", requireStaffOrAdmin, controller.getProductLogs);
+// Tạo sản phẩm - chỉ admin
+router.get("/create", requireAuth, requireAdmin, controller.showCreateProduct);
+router.post("/create", requireAuth, requireAdmin, upload.single("image"), cleanupUpload, controller.createProduct);
+
+// Chỉnh sửa sản phẩm - chỉ admin
+router.get("/edit/:id", requireAuth, requireAdmin, controller.getProductById);
+router.post("/edit/:id", requireAuth, requireAdmin, upload.single("image"), cleanupUpload, controller.updateProduct);
+
+// Xóa sản phẩm - chỉ admin
+router.post("/delete/:id", requireAuth, requireAdmin, controller.deleteProduct);
 
 module.exports = router;

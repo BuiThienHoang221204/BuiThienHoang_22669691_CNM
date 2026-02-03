@@ -13,29 +13,40 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Cấu hình session
-app.use(session({
-  secret: process.env.SESSION_SECRET || "your-secret-key-here",
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: false, // Set true nếu dùng HTTPS
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));
-
 // Cấu hình view engine
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// Global middleware để pass user info to views
-app.use((req, res, next) => {
-  res.locals.user = req.session?.user || null;
+// Session configuration
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production", // Chỉ dùng HTTPS trong production
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  })
+);
+
+// Middleware để gắn user vào request từ session
+app.use(async (req, res, next) => {
+  if (req.session && req.session.userId) {
+    try {
+      const authService = require("./services/auth.service");
+      const user = await authService.verifySession(req.session.userId);
+      req.user = user;
+    } catch (error) {
+      console.error("Error loading user from session:", error);
+      req.user = null;
+    }
+  }
   next();
 });
 
@@ -43,17 +54,12 @@ app.use((req, res, next) => {
 const authRoutes = require("./routes/auth.routes");
 const productRoutes = require("./routes/product.routes");
 const categoryRoutes = require("./routes/category.routes");
-const adminRoutes = require("./routes/admin.routes");
+const userRoutes = require("./routes/user.routes");
 
-app.use("/auth", authRoutes);
-app.use("/products", productRoutes);
+app.use("/", authRoutes);
+app.use("/", productRoutes);
 app.use("/categories", categoryRoutes);
-app.use("/admin", adminRoutes);
-
-// Home redirect to products
-app.get("/", (req, res) => {
-  res.redirect("/products");
-});
+app.use("/users", userRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -79,4 +85,6 @@ app.listen(PORT, () => {
   console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
   console.log(`📦 DynamoDB Table: ${process.env.DYNAMODB_TABLE || "Products"}`);
   console.log(`🪣 S3 Bucket: ${process.env.S3_BUCKET_NAME || "Not configured"}`);
+  console.log(`👤 Users Table: ${process.env.USERS_TABLE || "Users"}`);
+  console.log(`📁 Categories Table: ${process.env.CATEGORIES_TABLE || "Categories"}`);
 });

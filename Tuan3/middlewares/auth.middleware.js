@@ -1,62 +1,75 @@
-const userRepository = require("../repositories/user.repository");
+const authService = require("../services/auth.service");
 
 // Middleware kiểm tra đăng nhập
-const requireAuth = (req, res, next) => {
-  if (!req.session || !req.session.user) {
-    return res.redirect("/login");
+exports.requireAuth = async (req, res, next) => {
+  try {
+    // Kiểm tra session
+    if (!req.session || !req.session.userId) {
+      return res.redirect("/login?redirect=" + encodeURIComponent(req.originalUrl));
+    }
+
+    // Verify user từ session
+    const user = await authService.verifySession(req.session.userId);
+    if (!user) {
+      req.session.destroy();
+      return res.redirect("/login?error=session_expired");
+    }
+
+    // Gắn user vào request
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error("Auth middleware error:", error);
+    res.redirect("/login?error=auth_error");
   }
-  
-  // Gắn user vào req để sử dụng trong controller
-  req.user = req.session.user;
-  next();
 };
 
 // Middleware kiểm tra quyền admin
-const requireAdmin = (req, res, next) => {
-  if (!req.session || !req.session.user) {
-    return res.redirect("/login");
-  }
-  
-  if (req.session.user.role !== "admin") {
-    return res.status(403).render("error", {
-      title: "Forbidden",
-      message: "Bạn không có quyền truy cập chức năng này. Chỉ admin mới có thể thực hiện."
+exports.requireAdmin = async (req, res, next) => {
+  try {
+    // Phải đăng nhập trước
+    if (!req.user) {
+      return res.redirect("/login?redirect=" + encodeURIComponent(req.originalUrl));
+    }
+
+    // Kiểm tra role
+    if (req.user.role !== "admin") {
+      return res.status(403).render("error", {
+        title: "Không có quyền",
+        message: "Bạn không có quyền truy cập trang này. Chỉ admin mới có quyền này."
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error("Admin middleware error:", error);
+    res.status(500).render("error", {
+      title: "Lỗi",
+      message: "Đã xảy ra lỗi khi kiểm tra quyền"
     });
   }
-  
-  req.user = req.session.user;
-  next();
 };
 
-// Middleware kiểm tra quyền staff trở lên
-const requireStaffOrAdmin = (req, res, next) => {
-  if (!req.session || !req.session.user) {
-    return res.redirect("/login");
-  }
-  
-  const allowedRoles = ["staff", "admin"];
-  if (!allowedRoles.includes(req.session.user.role)) {
-    return res.status(403).render("error", {
-      title: "Forbidden", 
-      message: "Bạn không có quyền truy cập."
+// Middleware kiểm tra quyền staff (chỉ xem)
+exports.requireStaff = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.redirect("/login?redirect=" + encodeURIComponent(req.originalUrl));
+    }
+
+    if (req.user.role !== "admin" && req.user.role !== "staff") {
+      return res.status(403).render("error", {
+        title: "Không có quyền",
+        message: "Bạn không có quyền truy cập trang này."
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error("Staff middleware error:", error);
+    res.status(500).render("error", {
+      title: "Lỗi",
+      message: "Đã xảy ra lỗi khi kiểm tra quyền"
     });
   }
-  
-  req.user = req.session.user;
-  next();
-};
-
-// Middleware redirect nếu đã đăng nhập
-const redirectIfAuthenticated = (req, res, next) => {
-  if (req.session && req.session.user) {
-    return res.redirect("/");
-  }
-  next();
-};
-
-module.exports = {
-  requireAuth,
-  requireAdmin,
-  requireStaffOrAdmin,
-  redirectIfAuthenticated
 };

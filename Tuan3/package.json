@@ -1,5 +1,5 @@
 {
-  "name": "22669691_BuiThienHoang",
+  "name": "22669691_buithienhoang",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -14,11 +14,11 @@
     "@aws-sdk/client-dynamodb": "^3.972.0",
     "@aws-sdk/client-s3": "^3.972.0",
     "@aws-sdk/lib-dynamodb": "^3.972.0",
-    "bcrypt": "^6.0.0",
+    "bcrypt": "^5.1.1",
     "dotenv": "^17.2.3",
     "ejs": "^4.0.1",
     "express": "^5.2.1",
-    "express-session": "^1.19.0",
+    "express-session": "^1.18.1",
     "multer": "^2.0.2",
     "uuid": "^9.0.1"
   }
