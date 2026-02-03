@@ -33,13 +33,19 @@ exports.showLogin = async (req, res) => {
 // Xử lý đăng nhập
 exports.login = async (req, res) => {
   try {
-    const { username, password, redirect } = req.body;
+    const { username, password } = req.body;
+    let redirect = req.body.redirect || "/";
+    
+    // Đảm bảo redirect URL luôn bắt đầu bằng /
+    if (!redirect.startsWith('/')) {
+      redirect = '/';
+    }
 
     if (!username || !password) {
       return res.render("auth/login", {
         title: "Đăng nhập",
         error: "Vui lòng nhập đầy đủ thông tin",
-        redirect: redirect || "/"
+        redirect: redirect
       });
     }
 
@@ -52,8 +58,7 @@ exports.login = async (req, res) => {
     req.session.role = user.role;
 
     // Redirect
-    const redirectUrl = redirect || "/";
-    res.redirect(redirectUrl);
+    res.redirect(redirect);
   } catch (error) {
     console.error("Login error:", error);
     res.render("auth/login", {
