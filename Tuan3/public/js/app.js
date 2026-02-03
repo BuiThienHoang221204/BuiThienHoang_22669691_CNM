@@ -97,6 +97,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         form.addEventListener('submit', function(e) {
+            // Only validate if there are required inputs
+            if (inputs.length === 0) {
+                return; // Let form submit normally
+            }
+            
             let isValid = true;
             inputs.forEach(input => {
                 if (!validateInput(input)) {
@@ -106,6 +111,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!isValid) {
                 e.preventDefault();
+                console.log('Form validation failed - form submission prevented');
+            } else {
+                console.log('Form validation passed - allowing submission');
             }
         });
     });
@@ -187,18 +195,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Loading states for buttons
     const submitButtons = document.querySelectorAll('button[type="submit"]');
     submitButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            if (this.closest('form').checkValidity()) {
-                const originalText = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-                this.disabled = true;
-                
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.disabled = false;
-                }, 3000);
-            }
-        });
+        const form = button.closest('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // Only show loading if form is valid
+                if (form.checkValidity()) {
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+                    button.disabled = true;
+                    
+                    // Re-enable after 5 seconds as fallback
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }, 5000);
+                }
+            });
+        }
     });
     
     // Auto-hide alerts
