@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Danh sách sản phẩm</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+    .add-btn {
+      display: inline-block;
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      transition: background-color 0.3s;
+    }
+    .add-btn:hover {
+      background-color: #45a049;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+      font-weight: bold;
+    }
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+    img {
+      border-radius: 4px;
+    }
+    .action-links a {
+      display: inline-block;
+      padding: 6px 12px;
+      margin-right: 5px;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+    .edit-btn {
+      background-color: #2196F3;
+      color: white;
+    }
+    .edit-btn:hover {
+      background-color: #0b7dda;
+    }
+    .delete-btn {
+      background-color: #f44336;
+      color: white;
+    }
+    .delete-btn:hover {
+      background-color: #da190b;
+    }
+    .img-thumb {
+      max-width: 100px;
+      height: auto;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+<%- include('partials/header', { title: 'Danh sách sản phẩm' }) %>
+<section>
+  <h1 style="text-align:center;margin-bottom:32px;">📦 Danh sách sản phẩm</h1>
+  <div style="margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="color:var(--text-light);font-size:14px;">
+      📊 Tổng cộng: <strong><%= products.length %></strong> sản phẩm
+    </div>
+    <a href="/add" class="btn">➕ Thêm sản phẩm</a>
+  </div>
+
+  <% if (products.length === 0) { %>
+    <div style="text-align:center;padding:60px 20px;background:rgba(102, 126, 234, 0.05);border-radius:20px;border:2px dashed var(--primary);">
+      <div style="font-size:48px;margin-bottom:16px;">📦</div>
+      <h3 style="color:var(--text);margin-bottom:12px;">Chưa có sản phẩm nào</h3>
+      <p style="color:var(--text-light);margin-bottom:24px;">Hãy thêm sản phẩm đầu tiên của bạn!</p>
+      <a href="/add" class="btn">🚀 Thêm sản phẩm đầu tiên</a>
+    </div>
+  <% } else { %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>📝 Tên sản phẩm</th>
+          <th>💰 Giá</th>
+          <th>🖼️ Hình ảnh</th>
+          <th>⚙️ Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% products.forEach(p => { %>
+          <tr>
+            <td style="font-weight:600;color:var(--text);"><%= p.name %></td>
+            <td style="color:var(--success);font-weight:600;"><%= new Intl.NumberFormat('vi-VN').format(p.price) %> VNĐ</td>
+            <td style="text-align:center;">
+              <% if (p.url_image) { %>
+                <img src="<%= p.url_image %>" alt="<%= p.name %>" class="img-thumb">
+              <% } else { %>
+                <div style="width:80px;height:80px;background:var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text-light);font-size:24px;">📷</div>
+              <% } %>
+            </td>
+            <td class="action-links">
+              <a href="/edit/<%= p.id %>" class="edit-btn">✏️ Sửa</a>
+              <a href="/delete/<%= p.id %>" class="delete-btn" onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">🗑️ Xóa</a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</section>
+
+<%- include('partials/footer') %>
+  </div>
+</body>
+</html>

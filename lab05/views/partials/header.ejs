@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title><%= title || 'Product App' %></title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap">
+  <style>
+    :root{
+      --primary:#667eea;
+      --primary-dark:#5a67d8;
+      --accent:#f093fb;
+      --accent-dark:#ed64a6;
+      --success:#38b2ac;
+      --warning:#ed8936;
+      --danger:#e53e3e;
+      --bg:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --card:#ffffff;
+      --text:#2d3748;
+      --text-light:#718096;
+      --border:#e2e8f0;
+      --shadow:0 10px 25px rgba(102, 126, 234, 0.15);
+    }
+    
+    *{box-sizing:border-box;margin:0;padding:0}
+    
+    body{
+      font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background:var(--bg);
+      min-height:100vh;
+      color:var(--text);
+      line-height:1.6;
+    }
+    
+    .header{
+      background:rgba(255,255,255,0.95);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(255,255,255,0.2);
+      position:sticky;
+      top:0;
+      z-index:100;
+    }
+    
+    .header .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:20px 24px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    
+    .logo{
+      font-weight:700;
+      background:linear-gradient(45deg, var(--primary), var(--accent));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      font-size:20px;
+      text-decoration:none;
+    }
+    
+    .nav{display:flex;align-items:center;gap:12px}
+    
+    .nav a{
+      color:var(--text);
+      text-decoration:none;
+      padding:10px 16px;
+      border-radius:12px;
+      transition:all 0.3s ease;
+      font-weight:500;
+    }
+    
+    .nav a:hover{
+      background:rgba(102, 126, 234, 0.1);
+      transform:translateY(-1px);
+    }
+    
+    .container{
+      max-width:1100px;
+      margin:40px auto;
+      padding:32px;
+      background:var(--card);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    
+    .container::before{
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height:4px;
+      background:linear-gradient(90deg, var(--primary), var(--accent));
+    }
+    
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:linear-gradient(45deg, var(--primary), var(--primary-dark));
+      color:#fff;
+      padding:12px 20px;
+      border-radius:12px;
+      text-decoration:none;
+      font-weight:600;
+      transition:all 0.3s ease;
+      box-shadow:0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 25px rgba(102, 126, 234, 0.6);
+    }
+    
+    .form-grid{
+      max-width:520px;
+      margin:0 auto;
+      background:rgba(255,255,255,0.8);
+      backdrop-filter:blur(10px);
+      border-radius:20px;
+      padding:32px;
+      box-shadow:var(--shadow);
+    }
+    
+    .table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 4px 20px rgba(102, 126, 234, 0.1);
+    }
+    
+    .table th{
+      background:linear-gradient(45deg, var(--primary), var(--primary-dark));
+      color:#fff;
+      padding:16px;
+      text-align:left;
+      font-weight:600;
+      font-size:14px;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+    }
+    
+    .table td{
+      padding:16px;
+      border-bottom:1px solid var(--border);
+      vertical-align:middle;
+      background:#fff;
+      transition:all 0.3s ease;
+    }
+    
+    .table tr:hover td{
+      background:rgba(102, 126, 234, 0.05);
+      transform:scale(1.01);
+    }
+    
+    .img-thumb{
+      width:80px;
+      height:80px;
+      object-fit:cover;
+      border-radius:12px;
+      border:2px solid var(--border);
+      transition:all 0.3s ease;
+    }
+    
+    .img-thumb:hover{
+      transform:scale(1.1);
+      border-color:var(--primary);
+    }
+    
+    .action-links{
+      display:flex;
+      gap:8px;
+    }
+    
+    .action-links a{
+      padding:8px 14px;
+      border-radius:8px;
+      text-decoration:none;
+      color:#fff;
+      font-size:13px;
+      font-weight:600;
+      transition:all 0.3s ease;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+    }
+    
+    .edit-btn{
+      background:linear-gradient(45deg, var(--accent), var(--accent-dark));
+      box-shadow:0 3px 10px rgba(240, 147, 251, 0.4);
+    }
+    
+    .edit-btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 6px 20px rgba(240, 147, 251, 0.6);
+    }
+    
+    .delete-btn{
+      background:linear-gradient(45deg, var(--danger), #c53030);
+      box-shadow:0 3px 10px rgba(229, 62, 62, 0.4);
+    }
+    
+    .delete-btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 6px 20px rgba(229, 62, 62, 0.6);
+    }
+
+    h1{
+      background:linear-gradient(45deg, var(--primary), var(--accent));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      font-weight:700;
+      margin-bottom:32px;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="wrap">
+      <a href="/" class="logo">✨ Product Manager</a>
+      <nav class="nav">
+        <a href="/">📋 Danh sách</a>
+        <a href="/add" class="btn">➕ Thêm sản phẩm</a>
+      </nav>
+    </div>
+  </header>
+  <main class="container">

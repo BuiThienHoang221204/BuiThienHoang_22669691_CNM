@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thêm sản phẩm</title>
+  <link rel="stylesheet" href="/path/to/your/styles.css"> <!-- Thay đổi đường dẫn tới file CSS của bạn -->
+</head>
+<body>
+<%- include('partials/header', { title: 'Thêm sản phẩm' }) %>
+<section class="form-grid">
+  <style>
+    .form-group{margin-bottom:20px}
+    label{display:block;margin-bottom:8px;color:var(--text);font-weight:600;font-size:14px}
+    input[type="text"], input[type="number"], input[type="file"]{
+      width:100%;
+      padding:14px;
+      border:2px solid var(--border);
+      border-radius:12px;
+      font-size:16px;
+      transition:all 0.3s ease;
+      background:rgba(255,255,255,0.8);
+    }
+    input[type="text"]:focus, input[type="number"]:focus{
+      outline:none;
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform:translateY(-1px);
+    }
+    input[type="file"]{
+      padding:12px;
+      border-style:dashed;
+      background:rgba(102, 126, 234, 0.05);
+    }
+    button.submit-btn{
+      width:100%;
+      padding:16px;
+      border-radius:12px;
+      background:linear-gradient(45deg, var(--success), #2d7d7d);
+      color:#fff;
+      border:none;
+      margin-top:16px;
+      font-weight:600;
+      font-size:16px;
+      transition:all 0.3s ease;
+      box-shadow:0 4px 15px rgba(56, 178, 172, 0.4);
+      text-transform:uppercase;
+      letter-spacing:1px;
+    }
+    button.submit-btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 25px rgba(56, 178, 172, 0.6);
+    }
+    .back-link{
+      display:block;
+      text-align:center;
+      margin-top:20px;
+      color:var(--accent);
+      text-decoration:none;
+      font-weight:600;
+      transition:all 0.3s ease;
+    }
+    .back-link:hover{
+      color:var(--accent-dark);
+      transform:translateY(-1px);
+    }
+  </style>
+
+  <h1 style="text-align:center;margin-bottom:32px;">🎯 Thêm sản phẩm mới</h1>
+  <form action="/add" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="name">📝 Tên sản phẩm:</label>
+      <input type="text" id="name" name="name" placeholder="Nhập tên sản phẩm..." required>
+    </div>
+    <div class="form-group">
+      <label for="price">💰 Giá:</label>
+      <input type="number" id="price" name="price" placeholder="Nhập giá sản phẩm..." required>
+    </div>
+    <div class="form-group">
+      <label for="image">📷 Chọn ảnh:</label>
+      <input type="file" id="image" name="image" accept="image/*" required>
+    </div>
+    <button type="submit" class="submit-btn">✨ Thêm sản phẩm</button>
+  </form>
+  <a href="/" class="back-link">← 🔙 Quay lại danh sách</a>
+</section>
+
+<%- include('partials/footer') %>
+</body>
+</html>
