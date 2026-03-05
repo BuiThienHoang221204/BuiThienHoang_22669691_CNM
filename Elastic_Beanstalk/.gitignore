@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment variables
+.env
+
+# Uploads (lưu trên S3, không commit local)
+uploads/*
+!uploads/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build
+dist/
+build/
+
+# Key pair (bảo mật)
+*.pem
+
+# Elastic Beanstalk generated files
+.elasticbeanstalk/
+
+# Thư mục demo app (không deploy)
+eb-app/

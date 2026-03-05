@@ -1,0 +1,86 @@
+<%- include('../layout', {title: typeof title !== 'undefined' ? title : 'Thêm danh mục'}) %>
+<style>
+  .form-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .form-group input[type="text"],
+  .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+    font-family: inherit;
+  }
+
+  .form-group input[type="text"]:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #1976d2;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .error-message {
+    background: #ffebee;
+    color: #c62828;
+    padding: 12px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border-left: 4px solid #c62828;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+  }
+</style>
+
+<div class="page-header">
+  <h2>➕ Thêm danh mục mới</h2>
+</div>
+
+<div class="form-container">
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="error-message">
+      <%= error %>
+    </div>
+  <% } %>
+
+  <form action="/categories/create" method="POST">
+    <div class="form-group">
+      <label for="name">Tên danh mục *</label>
+      <input type="text" id="name" name="name" placeholder="Nhập tên danh mục" required>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Mô tả</label>
+      <textarea id="description" name="description" placeholder="Nhập mô tả danh mục (tùy chọn)"></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn">💾 Lưu danh mục</button>
+      <a href="/categories" class="btn btn-secondary">↩️ Quay lại</a>
+    </div>
+  </form>
+</div>
+
+<%- include('../footer') %>

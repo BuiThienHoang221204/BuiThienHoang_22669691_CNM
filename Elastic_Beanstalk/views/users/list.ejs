@@ -1,0 +1,83 @@
+<%- include('../layout', {title: typeof title !== 'undefined' ? title : 'Quản lý người dùng'}) %>
+<style>
+  .table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  thead {
+    background: #1976d2;
+    color: white;
+  }
+
+  th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  tbody tr:hover {
+    background: #f8f9fa;
+  }
+
+  .role-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.85em;
+    font-weight: 600;
+  }
+
+  .role-badge.admin {
+    background: #e3f2fd;
+    color: #1565c0;
+  }
+
+  .role-badge.staff {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+</style>
+
+<div class="page-header">
+  <h2>👥 Quản lý người dùng</h2>
+  <a href="/users/create" class="btn">➕ Tạo staff</a>
+</div>
+
+<div style="margin-bottom: 20px;">
+  <a href="/" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;">↩️ Về sản phẩm</a>
+  <a href="/categories" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;">📁 Danh mục</a>
+</div>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% (users || []).forEach(u => { %>
+        <tr>
+          <td><strong><%= u.username %></strong></td>
+          <td>
+            <span class="role-badge <%= u.role %>"><%= u.role %></span>
+          </td>
+          <td><%= u.createdAt || '' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../footer') %>
+

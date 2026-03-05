@@ -1,0 +1,126 @@
+<%- include('../layout', {title: typeof title !== 'undefined' ? title : 'Thêm sản phẩm'}) %>
+
+<!-- Page Header -->
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="fas fa-plus-circle"></i>
+    Thêm sản phẩm mới
+  </h1>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+  <div class="card-header">
+    <h3 class="card-title">
+      <i class="fas fa-info-circle"></i>
+      Thông tin sản phẩm
+    </h3>
+  </div>
+
+  <div class="card-body">
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div style="background: #fed7d7; color: #c53030; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #e53e3e;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <%= error %>
+      </div>
+    <% } %>
+
+    <form action="/create" method="POST" enctype="multipart/form-data" style="display: grid; gap: 1.5rem;">
+      
+      <!-- Product Name -->
+      <div>
+        <label for="name" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">
+          <i class="fas fa-tag"></i> Tên sản phẩm *
+        </label>
+        <input type="text" id="name" name="name" required
+               placeholder="Nhập tên sản phẩm..."
+               style="width: 100%; padding: 0.875rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: var(--transition);">
+      </div>
+
+      <!-- Category & Price Row -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <div>
+          <label for="categoryId" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">
+            <i class="fas fa-folder"></i> Danh mục
+          </label>
+          <select id="categoryId" name="categoryId"
+                  style="width: 100%; padding: 0.875rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: var(--transition);">
+            <option value="">-- Chọn danh mục --</option>
+            <% if (typeof categories !== 'undefined' && categories) { %>
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat.categoryId %>"><%= cat.name %></option>
+              <% }) %>
+            <% } %>
+          </select>
+        </div>
+
+        <div>
+          <label for="price" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">
+            <i class="fas fa-dollar-sign"></i> Giá (VNĐ) *
+          </label>
+          <input type="number" id="price" name="price" required min="0" step="1000"
+                 placeholder="0"
+                 style="width: 100%; padding: 0.875rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: var(--transition);">
+        </div>
+      </div>
+
+      <!-- Quantity -->
+      <div>
+        <label for="quantity" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">
+          <i class="fas fa-boxes"></i> Số lượng tồn kho *
+        </label>
+        <input type="number" id="quantity" name="quantity" required min="0"
+               placeholder="0"
+               style="width: 100%; padding: 0.875rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: var(--transition);">
+      </div>
+
+      <!-- Image Upload -->
+      <div>
+        <label for="image" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">
+          <i class="fas fa-image"></i> Hình ảnh sản phẩm *
+        </label>
+        <div style="border: 2px dashed var(--border-color); border-radius: 8px; padding: 2rem; text-align: center; background: #fafafa;">
+          <div style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;">
+            <i class="fas fa-cloud-upload-alt"></i>
+          </div>
+          <input type="file" id="image" name="image" accept="image/*" required
+                 style="margin-bottom: 1rem;">
+          <p style="color: var(--text-light); margin: 0; font-size: 0.875rem;">
+            Chọn file hình ảnh (JPG, PNG, GIF - tối đa 5MB)
+          </p>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+        <a href="/" class="btn btn-secondary">
+          <i class="fas fa-times"></i>
+          Hủy bỏ
+        </a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i>
+          Lưu sản phẩm
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  input[type="file"] {
+    cursor: pointer;
+  }
+  
+  @media (max-width: 768px) {
+    .card-body > form > div:nth-child(3) {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<%- include('../footer') %>

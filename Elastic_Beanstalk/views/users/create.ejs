@@ -1,0 +1,77 @@
+<%- include('../layout', {title: typeof title !== 'undefined' ? title : 'Tạo tài khoản staff'}) %>
+<style>
+  .form-container {
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+
+  .error-message {
+    background: #ffebee;
+    color: #c62828;
+    padding: 12px;
+    border-radius: 5px;
+    margin-bottom: 16px;
+    border-left: 4px solid #c62828;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+  }
+</style>
+
+<div class="page-header">
+  <h2>➕ Tạo tài khoản staff</h2>
+</div>
+
+<div class="form-container">
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="error-message"><%= error %></div>
+  <% } %>
+
+  <form action="/users/create" method="POST">
+    <div class="form-group">
+      <label for="username">Username *</label>
+      <input type="text" id="username" name="username" required autofocus>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Mật khẩu *</label>
+      <input type="password" id="password" name="password" required minlength="6">
+      <small style="color:#666;display:block;margin-top:6px;">Tối thiểu 6 ký tự</small>
+    </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">Xác nhận mật khẩu *</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6">
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn">💾 Tạo staff</button>
+      <a href="/users" class="btn btn-secondary">↩️ Quay lại</a>
+    </div>
+  </form>
+</div>
+
+<%- include('../footer') %>
+

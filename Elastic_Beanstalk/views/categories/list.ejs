@@ -1,0 +1,76 @@
+<%- include('../layout', {title: typeof title !== 'undefined' ? title : 'Quản lý danh mục'}) %>
+
+<!-- Page Header -->
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="fas fa-tags"></i>
+    Quản lý danh mục
+  </h1>
+  <a href="/categories/create" class="btn btn-primary">
+    <i class="fas fa-plus"></i>
+    Thêm danh mục
+  </a>
+</div>
+
+<% if (categories.length === 0) { %>
+  <!-- Empty State -->
+  <div class="card">
+    <div class="card-body" style="text-align: center; padding: 4rem 2rem;">
+      <div style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;">
+        <i class="fas fa-folder-open"></i>
+      </div>
+      <h2 style="color: var(--text-dark); margin-bottom: 1rem;">Chưa có danh mục nào</h2>
+      <p style="color: var(--text-light); margin-bottom: 2rem;">
+        Hãy thêm danh mục đầu tiên để phân loại sản phẩm của bạn!
+      </p>
+      <a href="/categories/create" class="btn btn-primary">
+        <i class="fas fa-plus"></i>
+        Thêm danh mục đầu tiên
+      </a>
+    </div>
+  </div>
+<% } else { %>
+  <!-- Categories Grid -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+    <% categories.forEach(cat => { %>
+      <div class="card">
+        <div class="card-header" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;">
+          <h3 style="color: white; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-tag"></i>
+            <%= cat.name %>
+          </h3>
+        </div>
+        
+        <div class="card-body">
+          <p style="color: var(--text-light); margin-bottom: 1.5rem; min-height: 3rem;">
+            <%= cat.description || 'Không có mô tả' %>
+          </p>
+          
+          <div style="display: flex; gap: 0.75rem;">
+            <a href="/categories/edit/<%= cat.categoryId %>" class="btn btn-secondary" style="flex: 1; margin: 0;">
+              <i class="fas fa-edit"></i>
+              Chỉnh sửa
+            </a>
+            <form action="/categories/delete/<%= cat.categoryId %>" method="post" style="flex: 1;">
+              <button type="submit" class="btn btn-danger" style="width: 100%; margin: 0;"
+                      onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này? Tất cả sản phẩm trong danh mục sẽ bị ảnh hưởng.')">
+                <i class="fas fa-trash"></i>
+                Xóa
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- Back to Products -->
+  <div style="margin-top: 2rem; text-align: center;">
+    <a href="/" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i>
+      Quay về danh sách sản phẩm
+    </a>
+  </div>
+<% } %>
+
+<%- include('../footer') %>

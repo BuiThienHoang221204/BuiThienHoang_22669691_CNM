@@ -1,0 +1,20 @@
+<%- include('./layout', {title: 'Lỗi'}) %>
+<style>
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+  }
+
+  .empty-state h2 {
+    margin-bottom: 20px;
+    color: #f5576c;
+  }
+</style>
+
+<div class="empty-state">
+  <h2>⚠️ Đã xảy ra lỗi</h2>
+  <p style="color: #666; margin: 20px 0;"><%= typeof message !== 'undefined' ? message : 'Có lỗi xảy ra. Vui lòng thử lại sau.' %></p>
+  <a href="/" class="btn">↩️ Quay về trang chủ</a>
+</div>
+<%- include('./footer') %>
